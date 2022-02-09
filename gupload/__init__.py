@@ -14,10 +14,11 @@ __version__ = 'v1.1.0'
               type=click.Tuple([str, click.File('rb', lazy=True)]),
               multiple=True, help='Input file(s) to be uploaded.',
               metavar='<NAME PATH>...')
+@click.option('-d', '--description', help='description file', metavar='DESCRIPTION', required=True)
 @click.option('-n', '--nono', help="No action: print names of files to be upload, but don't upload.", is_flag=True)
 @click.argument('files', nargs=-1, type=click.File('rb', lazy=True))
 @click.version_option(version=__version__)
-def main(to, ofiles, nono, files):
+def main(to, ofiles, nono, files, description):
     try:
         service = googleapiclient.discovery.build('drive', 'v3') if not nono else None
 
@@ -30,7 +31,7 @@ def main(to, ofiles, nono, files):
             if nono:
                 return
 
-            body = {'name': name}
+            body = {'name': name, 'description': description, 'mimeType': 'application/octet-stream'}
             if to is not None:
                 body['parents'] = [to]
             media_body = apiclient.http.MediaIoBaseUpload(fd, mimetype='application/octet-stream')
